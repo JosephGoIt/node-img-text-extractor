@@ -29,16 +29,21 @@ async function extractInvoiceDetails(imagePath) {
         const invoiceDate = dateMatch ? dateMatch[2] : "Not found";
         console.log("Invoice Date:", invoiceDate);
         
-        // Extract Description
-        const descriptionRegex = /DESCRIPTION[\s\S]*?(\bConsultation services\b)/i;
+        // Extract Description, anticipated all possible values
+        const descriptionRegex = /DESCRIPTION[\s\S]*?(\b(Consultation services|Board|Chip|Fan)\b)/i;
         const descriptionMatch = text.match(descriptionRegex);
         const description = descriptionMatch ? descriptionMatch[1] : "Not found";
         console.log("Description:", description);
         
-        // Extract Total Amount
-        const totalRegex = /TOTAL[:\s]+(\d+[.,]?\d*)/i;
-        const totalMatch = text.match(totalRegex);
-        const totalAmount = totalMatch ? totalMatch[1] : "Not found";
+        // Extract Total Amount, modified to get the last occurrence
+        const totalRegex = /TOTAL[:\s]+(\d+[.,]?\d*)/gi;
+        // const totalMatch = text.match(totalRegex);
+        // const totalAmount = totalMatch ? totalMatch[1] : "Not found";
+        let totalAmount = "Not found";
+        let match;
+        while ((match = totalRegex.exec(text)) !== null) {
+            totalAmount = match[1];
+        }
         console.log("Total Amount:", totalAmount);
         
         return { invoiceNumber, invoiceDate, description, totalAmount };
@@ -48,5 +53,5 @@ async function extractInvoiceDetails(imagePath) {
 }
 
 // Example usage
-const imagePath = path.join(__dirname, 'sample-inv.jpg');
+const imagePath = path.join(__dirname, 'sample-inv.png');
 extractInvoiceDetails(imagePath);
